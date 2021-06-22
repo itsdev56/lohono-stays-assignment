@@ -1,0 +1,10 @@
+Steps Done:
+
+1.created a repository for the assignment and cloned the project from the github url with a readme.md
+2.git checkout -b lohono-stays-assignment done to branch out from the main branch to lohono-stays-assignment branch
+3.npm init
+4.npm i express,nodemon and all other necessary packages
+npm i express --save-exact
+npm i nodemon --save-exact
+5.create a file server.js in the root repository
+6.created a datasource through mysql along with scripts and table for automating the stuff
