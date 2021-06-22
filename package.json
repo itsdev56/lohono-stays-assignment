@@ -1,0 +1,25 @@
+{
+  "name": "lohono-stays-assignment",
+  "version": "1.0.0",
+  "description": "Check availability of Villa",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itsdev56/lohono-stays-assignment.git"
+  },
+  "author": "itsdev56",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/itsdev56/lohono-stays-assignment/issues"
+  },
+  "homepage": "https://github.com/itsdev56/lohono-stays-assignment#readme",
+  "dependencies": {
+    "express": "4.17.1",
+    "mysql": "2.18.1",
+    "nodemon": "2.0.7",
+    "path": "0.12.7"
+  }
+}
