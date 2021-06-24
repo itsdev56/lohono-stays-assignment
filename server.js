@@ -2,10 +2,13 @@ const express = require('express');
 const app = express();
 const db = require('./datasource.js');
 const bodyParser = require('body-parser');
-const moment = require('moment-timezone');
 const alert = require('alert');
 
 app.use(express.static('./client'));
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'html');
+app.set('views', __dirname);
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -14,36 +17,48 @@ app.listen(3000, () => {
 });
 
 app.post('/enquireAboutVillas', (req, res) => {
-  if (checkDateFormat(req.body.checkedInDate) && checkDateFormat(req.body.checkedOutDate)) {
-    res.send('PERFECT');
+  if (req.body.checkedInDate && req.body.checkedOutDate && checkDateFormat(req.body.checkedInDate) && checkDateFormat(req.body.checkedOutDate)) {
+    return new Promise((resolve, reject) => {
+      fetchAllVillasForAGivenDateRange(req.body.checkedInDate, req.body.checkedOutDate)
+        .then((data) => {
+          return resolve(res.render(__dirname + "/client/main.html", { data: JSON.stringify(data) }));
+        })
+        .catch((err) => {
+          console.log('err:', err);
+          return reject(res.send('Not Perfect'));
+        });
+    })
   } else {
-    console.log('The Dates Selected Are Not In DD/MM/YYYY format');
-    alert("Either of checkin or checkout date is not in DD/MM/YYYY format. Automatically redirecting you to the home page Please enter correct date");
+    console.log('The Dates Selected Are Not In YYYY-MM-DD format');
+    alert("Either of checkin or checkout date is not in YYYY-MM-DD format. Automatically redirecting you to the home page Please enter correct date");
     res.redirect('http://localhost:3000');
   }
   res.end();
 });
-app.get('/getVillaList', (req, res) => {
-  let hotelList = [];
-  let fetchingQuery = `select vd.average_price_per_night from lohono_stays.villa_master v
-    inner join lohono_stays.villa_details vd on vd.fk_id_villa_master = v.id
-    where vd.is_available = 1`;
-  db.query(fetchingQuery, function (err, data) {
-    if (err) {
-      console.log('Internal Server Error. Please contact Support for resolution');
-      res.status(500).send("Internal Server Error. Please contact Support for resolution");
-      return;
-    }
-    hotelList = data;
-    res.send(hotelList);
-  })
-});
 
-function checkDateFormat(testDate) {
-  let date_regex = /^(0[1-9]|1\d|2\d|3[01])\/(0[1-9]|1[0-2])\/(19|20)\d{2}$/;
-  if (!(date_regex.test(testDate))) {
-    return false;
-  } else {
-    return true;
-  }
+function checkDateFormat(dateString) {
+  var regEx = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateString.match(regEx)) return false;  // Invalid format
+  var d = new Date(dateString);
+  var dNum = d.getTime();
+  if (!dNum && dNum !== 0) return false; // NaN value, Invalid date
+  return d.toISOString().slice(0, 10) === dateString;
+}
+
+function fetchAllVillasForAGivenDateRange(startDate, endDate) {
+  return new Promise((resolve, reject) => {
+    let fetchingQuery = `SELECT vm.name as villaName,vd.average_price_per_night,s.name as stateName,c.name as cityName from lohono_stays.villa_master vm
+    inner join lohono_stays.villa_details vd on vd.fk_id_villa_master = vm.id 
+    inner join lohono_stays.state s on s.id = vd.fk_id_state
+    inner join lohono_stays.city c on c.id = vd.fk_id_city
+      WHERE  ((check_in_date <= (?) AND check_out_date >= (?))
+             OR (check_in_date < (?) AND check_out_date >= (?) )
+             OR ((?) <= check_in_date AND (?) >= check_out_date))`;
+    db.query(fetchingQuery, [startDate, startDate, endDate, endDate, startDate, endDate], function (err, data) {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(data);
+    })
+  })
 }
