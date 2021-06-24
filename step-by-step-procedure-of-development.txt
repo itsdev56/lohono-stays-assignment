@@ -11,3 +11,4 @@ npm i nodemon --save-exact
 7.After testing the datasource i have made a client and connected frontend and backend
 8.Made a calendar check in and checkout form parameter and binded the form parameter with
 POST method 
+9.Added a redirection page to fetch the result of the enquiry api for the villa
