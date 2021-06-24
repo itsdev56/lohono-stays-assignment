@@ -8,3 +8,6 @@ npm i express --save-exact
 npm i nodemon --save-exact
 5.create a file server.js in the root repository
 6.created a datasource through mysql along with scripts and table for automating the stuff
+7.After testing the datasource i have made a client and connected frontend and backend
+8.Made a calendar check in and checkout form parameter and binded the form parameter with
+POST method 
