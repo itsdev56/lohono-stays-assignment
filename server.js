@@ -21,7 +21,7 @@ app.post('/enquireAboutVillas', (req, res) => {
     return new Promise((resolve, reject) => {
       fetchAllVillasForAGivenDateRange(req.body.checkedInDate, req.body.checkedOutDate)
         .then((data) => {
-          return resolve(res.render(__dirname + "/client/main.html", { data: JSON.stringify(data) }));
+          return resolve(res.render(__dirname + "/client/main.html", { data: JSON.parse(JSON.stringify(data)) }));
         })
         .catch((err) => {
           console.log('err:', err);
