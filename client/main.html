@@ -34,6 +34,11 @@
                 CITY
               </p>
             </th>
+            <th width="260" style="margin:0;  padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
+              <p style="margin: 0; padding:0; font-size: 10px; line-height: 15px; color: black; font-family: 'verdana'; text-align: center; width: 220px; max-width: 220px; word-break: break-word;">
+                Link To Book
+              </p>
+            </th>
           </tr>
           <% data.forEach(function(result) {  %>
           <tr>
@@ -56,6 +61,14 @@
             <td width="140" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 10px;" valign="top">
               <p style="margin:0; padding: 0; font-size: 12px; line-height: 15px; color: #1a1a1a; font-family:'verdana'; width: 120px; max-width: 120px; word-break: break-word;">
                 <%= result.cityName %>
+              </p>
+            </td>
+            <td width="240" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 10px;" valign="top">
+              <p style="margin:0; padding: 0; font-size: 12px; line-height: 15px; color: #1a1a1a; font-family:'verdana'; width: 220px; max-width: 220px; word-break: break-word;">
+                <button onclick="location.href='/bookAVilla/<%= result.uniqueVillaId %>'" type="button">Click To Book
+                  This
+                  Awesome
+                  Villa!</button>
               </p>
             </td>
           </tr>
