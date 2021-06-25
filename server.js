@@ -15,11 +15,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.listen(3000, () => {
   console.log('App Server Started at port 3000. Browse your api on http://localhost:3000');
 });
+var checkInDate, checkedOutDate;
 
 app.post('/enquireAboutVillas', (req, res) => {
-  if (req.body.checkedInDate && req.body.checkedOutDate && checkDateFormat(req.body.checkedInDate) && checkDateFormat(req.body.checkedOutDate)) {
+  checkInDate = req.body.checkedInDate;
+  checkedOutDate = req.body.checkedOutDate;
+  if (checkInDate && checkedOutDate && checkDateFormat(checkInDate) && checkDateFormat(checkedOutDate)) {
     return new Promise((resolve, reject) => {
-      fetchAllVillasForAGivenDateRange(req.body.checkedInDate, req.body.checkedOutDate)
+      fetchAllVillasForAGivenDateRange(checkInDate, checkedOutDate)
         .then((data) => {
           return resolve(res.render(__dirname + "/client/main.html", { data: JSON.parse(JSON.stringify(data)) }));
         })
@@ -36,6 +39,24 @@ app.post('/enquireAboutVillas', (req, res) => {
   res.end();
 });
 
+app.get('/bookAVilla/:uniqueId', (req, res) => {
+  return new Promise((resolve, reject) => {
+    fetchVillaDetailsForUniqueId(req.params.uniqueId)
+      .then((data) => {
+        let calculatedRate = calculateRateOfStay(data[0]['average_price_per_night'], checkInDate, checkedOutDate);
+        data.forEach((result) => {
+          result.calculatedRate = calculatedRate;
+        });
+        console.log('data[0]:', data[0]);
+        return resolve(res.render(__dirname + "/client/booking.html", { data: JSON.parse(JSON.stringify(data[0])) }));
+      })
+      .catch((err) => {
+        console.log('err:', err);
+        return reject(res.send('Not Perfect'));
+      })
+  })
+});
+
 function checkDateFormat(dateString) {
   var regEx = /^\d{4}-\d{2}-\d{2}$/;
   if (!dateString.match(regEx)) return false;  // Invalid format
@@ -47,7 +68,7 @@ function checkDateFormat(dateString) {
 
 function fetchAllVillasForAGivenDateRange(startDate, endDate) {
   return new Promise((resolve, reject) => {
-    let fetchingQuery = `SELECT vm.name as villaName,vd.average_price_per_night,s.name as stateName,c.name as cityName from lohono_stays.villa_master vm
+    let fetchingQuery = `SELECT vm.name as villaName,vd.average_price_per_night,s.name as stateName,c.name as cityName,vm.unique_id as uniqueVillaId from lohono_stays.villa_master vm
     inner join lohono_stays.villa_details vd on vd.fk_id_villa_master = vm.id 
     inner join lohono_stays.state s on s.id = vd.fk_id_state
     inner join lohono_stays.city c on c.id = vd.fk_id_city
@@ -61,4 +82,27 @@ function fetchAllVillasForAGivenDateRange(startDate, endDate) {
       return resolve(data);
     })
   })
+}
+
+function fetchVillaDetailsForUniqueId(uniqueId) {
+  return new Promise((resolve, reject) => {
+    let fetchingQuery = `SELECT vm.name as villaName,vd.average_price_per_night,s.name as stateName,c.name as cityName from lohono_stays.villa_master vm
+    inner join lohono_stays.villa_details vd on vd.fk_id_villa_master = vm.id 
+    inner join lohono_stays.state s on s.id = vd.fk_id_state
+    inner join lohono_stays.city c on c.id = vd.fk_id_city
+      WHERE  vm.unique_id = (?)`;
+    db.query(fetchingQuery, [uniqueId], function (err, data) {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(data);
+    })
+  })
+}
+
+function calculateRateOfStay(pricePerNight, checkInDate, checkedOutDate) {
+  let diffDays = Math.ceil(Math.abs(new Date(checkedOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24));
+  console.log('diffDays:', diffDays);
+  let totalPriceForStay = pricePerNight * diffDays + ((18 * pricePerNight * diffDays) / 100);
+  return totalPriceForStay;
 }
