@@ -27,8 +27,7 @@ app.post('/enquireAboutVillas', (req, res) => {
           return resolve(res.render(__dirname + "/client/main.html", { data: JSON.parse(JSON.stringify(data)) }));
         })
         .catch((err) => {
-          console.log('err:', err);
-          return reject(res.send('Not Perfect'));
+          return reject(res.send('Error In Booking the villa. Please contact Support Team'));
         });
     })
   } else {
@@ -46,13 +45,26 @@ app.get('/bookAVilla/:uniqueId', (req, res) => {
         let calculatedRate = calculateRateOfStay(data[0]['average_price_per_night'], checkInDate, checkedOutDate);
         data.forEach((result) => {
           result.calculatedRate = calculatedRate;
+          result.checkInDate = checkInDate;
+          result.checkedOutDate = checkedOutDate;
+          result.uniqueId = req.params.uniqueId;
         });
-        console.log('data[0]:', data[0]);
         return resolve(res.render(__dirname + "/client/booking.html", { data: JSON.parse(JSON.stringify(data[0])) }));
       })
       .catch((err) => {
-        console.log('err:', err);
-        return reject(res.send('Not Perfect'));
+        return reject(res.send('Error In Booking the villa. Please contact Support Team'));
+      })
+  })
+});
+
+app.get('/createBooking/:uniqueId', (req, res) => {
+  return new Promise((resolve, reject) => {
+    updateBookingRecord(req.params.uniqueId)
+      .then(() => {
+        return resolve(res.render(__dirname + "/client/finalBooking.html"));
+      })
+      .catch((err) => {
+        return reject(res.send('Error In Booking the villa. Please contact Support Team'));
       })
   })
 });
@@ -100,9 +112,21 @@ function fetchVillaDetailsForUniqueId(uniqueId) {
   })
 }
 
+function updateBookingRecord(uniqueId, checkInDate, checkOutDate) {
+  return new Promise((resolve, reject) => {
+    let updateQuery = `Update lohono_stays.villa_details set check_in_date=(?),check_out_date=(?),is_available=0
+    where fk_id_villa_master = (select id from lohono_stays.villa_master where unique_id=(?))`;
+    db.query(updateQuery, [checkInDate, checkOutDate, uniqueId], function (err, data) {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(data);
+    })
+  })
+}
+
 function calculateRateOfStay(pricePerNight, checkInDate, checkedOutDate) {
   let diffDays = Math.ceil(Math.abs(new Date(checkedOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24));
-  console.log('diffDays:', diffDays);
   let totalPriceForStay = pricePerNight * diffDays + ((18 * pricePerNight * diffDays) / 100);
   return totalPriceForStay;
 }

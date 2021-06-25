@@ -1,14 +1,128 @@
 <html>
 
 <head>
-  <title>Lohono Stays By Isprava</title>
+  <title>Isprava</title>
+  <style>
+    table,
+    th,
+    td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 5px;
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body>
-  <h1> CONFIRM YOUR VILLA, Please Find the Details and click on Confirm to Book</h1>
-  <p1>
-    <%= data.villaName %>
-  </p1>
+  <h1>
+    <center>Lohono Stays By Isprava</center>
+  </h1>
+  <br>
+  <br>
+  <br>
+  <h3>Please confirm the booking by clicking on submit</h3>
+  <h4>Booking Details</h4>
+  <table style="width:30%">
+    <tr>
+      <th width="180" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: black; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          VILLA NAME
+        </p>
+      </th>
+      <td>
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: blue; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          <strong>
+            <%= data.villaName %></strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <th width="180" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: black; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          PRICE PER NIGHT
+        </p>
+      </th>
+      <td>
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: blue; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          <strong>
+            <%= data['average_price_per_night'] %></strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <th width="180" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: black; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          STATE
+        </p>
+      </th>
+      <td>
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: blue; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          <strong>
+            <%= data.stateName %></strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <th width="180" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: black; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          CITY
+        </p>
+      </th>
+      <td>
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: blue; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          <strong>
+            <%= data.cityName %></strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <th width="180" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: black; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          CHECK IN DATE
+        </p>
+      </th>
+      <td>
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: blue; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          <strong>
+            <%= data.checkInDate %></strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <th width="180" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: black; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          CHECK OUT DATE
+        </p>
+      </th>
+      <td>
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: blue; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          <strong>
+            <%= data.checkedOutDate %></strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <th width="180" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: black; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          TOTAL PRICE FOR THE STAY
+        </p>
+      </th>
+      <td>
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: blue; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          <strong>
+            <%= data.calculatedRate %></strong>
+        </p>
+      </td>
+    </tr>
+  </table>
+  <br>
+  <br>
+  <button onclick="location.href='/createBooking/<%= data.uniqueId %>'" type="button">Confirm Booking</button>
 </body>
 
 </html>
