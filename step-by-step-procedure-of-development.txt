@@ -12,3 +12,5 @@ npm i nodemon --save-exact
 8.Made a calendar check in and checkout form parameter and binded the form parameter with
 POST method 
 9.Added a redirection page to fetch the result of the enquiry api for the villa
+10.On clicking one villa url it redirects to final booking page
+11.Once a villa is booked we send a Success message onto a new screen
