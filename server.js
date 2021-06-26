@@ -105,9 +105,10 @@ function fetchVillaDetailsForUniqueId(uniqueId) {
 
 function updateBookingRecord(uniqueId, checkInDate, checkOutDate) {
   return new Promise((resolve, reject) => {
-    let updateQuery = `Update lohono_stays.villa_details set check_in_date=(?),check_out_date=(?),is_available=0
+    let updateQuery = `Update lohono_stays.villa_details set check_in_date=(?),check_out_date=(?),fk_id_booked_by_user=(?)
     where fk_id_villa_master = (select id from lohono_stays.villa_master where unique_id=(?))`;
-    db.query(updateQuery, [checkInDate, checkOutDate, uniqueId], function (err, data) {
+    //here i am passing 1 because its assumed the booking is done for first user this can be changed once authentication/login is enabled
+    db.query(updateQuery, [checkInDate, checkOutDate, uniqueId, 1], function (err, data) {
       if (err) {
         return reject(err);
       }

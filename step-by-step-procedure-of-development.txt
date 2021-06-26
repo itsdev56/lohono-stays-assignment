@@ -16,3 +16,5 @@ POST method
 11.Once a villa is booked we send a Success message onto a new screen
 12.I have applied validation of fromDate getter than toDate in backend
 13.Made a datepicker in frontend through bootstrap and integrated backend path from that redirection
+14. I am assuming there is only user by my name for which this booking is taking place (for now being i am 
+enabling authentication page/login page and giving user login)
