@@ -3,6 +3,7 @@ const app = express();
 const db = require('./datasource.js');
 const bodyParser = require('body-parser');
 const alert = require('alert');
+const moment = require('moment-timezone');
 
 app.use(express.static('./client'));
 app.engine('html', require('ejs').renderFile);
@@ -20,13 +21,28 @@ var checkInDate, checkedOutDate;
 app.get('/enquireAboutVillas', (req, res) => {
   checkInDate = req.query.checkInDate;
   checkedOutDate = req.query.checkOutDate;
+  let finalRenderingData = [];
   if (checkInDate && checkedOutDate && (checkInDate < checkedOutDate)) {
     return new Promise((resolve, reject) => {
       fetchAllVillasForAGivenDateRange(checkInDate, checkedOutDate)
         .then((data) => {
-          return resolve(res.render(__dirname + "/client/main.html", { data: JSON.parse(JSON.stringify(data)) }));
+          data.forEach((result) => {
+            result.check_in_date = result.check_in_date ? moment(result.check_in_date).format("DD MMM YYYY") : null;
+            result.check_out_date = result.check_out_date ? moment(result.check_out_date).format("DD MMM YYYY") : null;
+          });
+          finalRenderingData = data;
+          return fetchUnavailableVillas()
+        })
+        .then((unavailableVilla) => {
+          unavailableVilla.forEach((result) => {
+            result.check_in_date = moment(result.check_in_date).format("DD MMM YYYY");
+            result.check_out_date = moment(result.check_out_date).format("DD MMM YYYY");
+          });
+          finalRenderingData = finalRenderingData.concat(unavailableVilla);
+          return resolve(res.render(__dirname + "/client/main.html", { data: JSON.parse(JSON.stringify(finalRenderingData)) }));
         })
         .catch((err) => {
+          console.log('err:', err);
           return reject(res.send('Error In Booking the villa. Please contact Support Team'));
         });
     })
@@ -52,6 +68,7 @@ app.get('/bookAVilla/:uniqueId', (req, res) => {
         return resolve(res.render(__dirname + "/client/booking.html", { data: JSON.parse(JSON.stringify(data[0])) }));
       })
       .catch((err) => {
+        console.log('err:', err);
         return reject(res.send('Error In Booking the villa. Please contact Support Team'));
       })
   })
@@ -64,6 +81,7 @@ app.get('/createBooking/:uniqueId', (req, res) => {
         return resolve(res.render(__dirname + "/client/finalBooking.html"));
       })
       .catch((err) => {
+        console.log('err:', err);
         return reject(res.send('Error In Booking the villa. Please contact Support Team'));
       })
   })
@@ -71,14 +89,38 @@ app.get('/createBooking/:uniqueId', (req, res) => {
 
 function fetchAllVillasForAGivenDateRange(startDate, endDate) {
   return new Promise((resolve, reject) => {
-    let fetchingQuery = `SELECT vm.name as villaName,vd.average_price_per_night,s.name as stateName,c.name as cityName,vm.unique_id as uniqueVillaId from lohono_stays.villa_master vm
+    // let fetchingQuery = `SELECT vm.name as villaName,vd.average_price_per_night,s.name as stateName,c.name as cityName,vm.unique_id as uniqueVillaId,
+    // vd.fk_id_booked_by_user,vd.check_in_date,vd.check_out_date from lohono_stays.villa_master vm
+    // inner join lohono_stays.villa_details vd on vd.fk_id_villa_master = vm.id 
+    // inner join lohono_stays.state s on s.id = vd.fk_id_state
+    // inner join lohono_stays.city c on c.id = vd.fk_id_city
+    //   WHERE  ((check_in_date <= (?) AND check_out_date >= (?))
+    //          OR (check_in_date < (?) AND check_out_date >= (?) )
+    //          OR ((?) <= check_in_date AND (?) >= check_out_date))`;
+    let fetchingQuery = `SELECT vm.name as villaName,vd.average_price_per_night,s.name as stateName,c.name as cityName,vm.unique_id as uniqueVillaId,
+    vd.fk_id_booked_by_user,vd.check_in_date,vd.check_out_date from lohono_stays.villa_master vm
     inner join lohono_stays.villa_details vd on vd.fk_id_villa_master = vm.id 
     inner join lohono_stays.state s on s.id = vd.fk_id_state
     inner join lohono_stays.city c on c.id = vd.fk_id_city
-      WHERE  ((check_in_date <= (?) AND check_out_date >= (?))
-             OR (check_in_date < (?) AND check_out_date >= (?) )
-             OR ((?) <= check_in_date AND (?) >= check_out_date))`;
+    WHERE vd.fk_id_booked_by_user is null`;
     db.query(fetchingQuery, [startDate, startDate, endDate, endDate, startDate, endDate], function (err, data) {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(data);
+    })
+  })
+}
+
+function fetchUnavailableVillas() {
+  return new Promise((resolve, reject) => {
+    let fetchingQuery = `SELECT vm.name as villaName,vd.average_price_per_night,s.name as stateName,c.name as cityName,vm.unique_id as uniqueVillaId, 
+    vd.fk_id_booked_by_user,vd.check_in_date,vd.check_out_date from lohono_stays.villa_master vm
+    inner join lohono_stays.villa_details vd on vd.fk_id_villa_master = vm.id 
+    inner join lohono_stays.state s on s.id = vd.fk_id_state
+    inner join lohono_stays.city c on c.id = vd.fk_id_city
+    WHERE vd.fk_id_booked_by_user is not null`;
+    db.query(fetchingQuery, function (err, data) {
       if (err) {
         return reject(err);
       }
