@@ -11,10 +11,6 @@ db.connect(function (err) {
       return createVillaMaster();
     })
     .then(() => {
-      console.log("Creating User Master");
-      return createUserMaster();
-    })
-    .then(() => {
       console.log("Creating State Master");
       return createStateMaster();
     })
@@ -27,12 +23,16 @@ db.connect(function (err) {
       return createVillaDetails();
     })
     .then(() => {
-      console.log("Done creating all the tables");
-      console.log("Now Creating Data");
-      console.log("Creating User Data");
-      return createUserData();
+      console.log("Creating User Master");
+      return createUserMaster();
     })
     .then(() => {
+      console.log("Creating Villa Booking Master");
+      return createVillaBookingMaster();
+    })
+    .then(() => {
+      console.log("Done creating all the tables");
+      console.log("Now Creating Data");
       console.log("Syncing State Data");
       return createStateData();
     })
@@ -47,6 +47,14 @@ db.connect(function (err) {
     .then(() => {
       console.log("Syncing Villa Details Data");
       return createVillaDetailsData();
+    })
+    .then(() => {
+      console.log("Syncing User Data");
+      return createUserData();
+    })
+    .then(() => {
+      console.log("Syncing Villa Booking Data");
+      return createVillaBookingData();
     })
     .then(() => {
       console.log("Done creating all the tables and data");
@@ -151,30 +159,52 @@ function createVillaDetails() {
     let createTableSql = `CREATE TABLE IF NOT EXISTS lohono_stays.villa_details (
       id int(11) NOT NULL AUTO_INCREMENT,
       address varchar(255) NOT NULL,
-      check_in_date datetime DEFAULT NULL,
-      check_out_date datetime DEFAULT NULL,
       created_date datetime NOT NULL,
       last_modified_date datetime NOT NULL,
       average_price_per_night decimal(25,10) NOT NULL,
       fk_id_state int(11) DEFAULT NULL,
       fk_id_city int(11) DEFAULT NULL,
       fk_id_villa_master int(11) DEFAULT NULL,
-      fk_id_booked_by_user int(11) DEFAULT NULL,
       PRIMARY KEY(id),
       KEY fkidx_villa_details_state_fk_id_state(fk_id_state),
       KEY fkidx_villa_details_state_fk_id_city(fk_id_city),
       KEY fkidx_villa_details_villa_master_fk_id_villa_master(fk_id_villa_master),
-      KEY fkidx_villa_details_user_fk_id_user(fk_id_booked_by_user),
       CONSTRAINT fkidx_villa_details_state_fk_id_state FOREIGN KEY(fk_id_state) REFERENCES state(id),
       CONSTRAINT fkidx_villa_details_villa_master_fk_id_villa_master FOREIGN KEY(fk_id_villa_master) REFERENCES villa_master(id),
-      CONSTRAINT fkidx_villa_details_city_fk_id_city FOREIGN KEY(fk_id_city) REFERENCES city(id),
-      CONSTRAINT fkidx_villa_details_user_fk_id_user FOREIGN KEY(fk_id_booked_by_user) REFERENCES user(id)
+      CONSTRAINT fkidx_villa_details_city_fk_id_city FOREIGN KEY(fk_id_city) REFERENCES city(id)
       )`;
     db.query(createTableSql, function (err) {
       if (err) {
         return reject(err);
       }
       console.log("Villa Details created successfully");
+      return resolve();
+    })
+  })
+}
+
+function createVillaBookingMaster() {
+  return new Promise((resolve, reject) => {
+    let createTableSql = `CREATE TABLE IF NOT EXISTS lohono_stays.villa_booking_details (
+      id int(11) NOT NULL AUTO_INCREMENT,
+      created_date datetime NOT NULL,
+      last_modified_date datetime NOT NULL,
+      check_in_date datetime DEFAULT NULL,
+      check_out_date datetime DEFAULT NULL,
+      fk_id_booked_by_user int(11) DEFAULT NULL,
+      fk_id_villa_details int(11) DEFAULT NULL,
+      is_active tinyint(1) NOT NULL,
+      PRIMARY KEY(id),
+      KEY fkidx_villa_booking_details_user_fk_id_booked_by_user(fk_id_booked_by_user),
+      KEY fkidx_villa_booking_details_villa_details_fk_id_villa_details(fk_id_villa_details),
+      CONSTRAINT fkidx_villa_booking_details_user_fk_id_booked_by_user FOREIGN KEY(fk_id_booked_by_user) REFERENCES user(id),
+      CONSTRAINT fkidx_villa_booking_details_villa_details_fk_id_villa_details FOREIGN KEY(fk_id_villa_details) REFERENCES villa_details(id)
+      )`;
+    db.query(createTableSql, function (err) {
+      if (err) {
+        return reject(err);
+      }
+      console.log("Villa Booking Details created successfully");
       return resolve();
     })
   })
@@ -1573,63 +1603,105 @@ function createVillaMasterData() {
 
 function createVillaDetailsData() {
   return new Promise((resolve, reject) => {
-    let createDataSql = `INSERT INTO lohono_stays.villa_details (id, address, check_in_date, check_out_date, created_date, last_modified_date, average_price_per_night, fk_id_state, fk_id_city, fk_id_villa_master, fk_id_booked_by_user)
+    let createDataSql = `INSERT INTO lohono_stays.villa_details (id, address, created_date, last_modified_date, average_price_per_night, fk_id_state, fk_id_city, fk_id_villa_master)
     VALUES
-      (1, 'B-24 Bicholim, Meera Road, Panaji Mumbai', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 11, 336, 1, NULL),
-      (2, 'B-24 Bicholim, Meera Road, Panaji Mumbai', '2021-06-24 00:00:00', '2021-06-27 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 11, 336, 2, 2),
-      (3, 'B-24 Bicholim, Meera Road, Panaji Mumbai', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 11, 336, 3, NULL),
-      (4, 'B-24 Bicholim, Meera Road, Panaji Mumbai', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 40000.0000000000, 11, 336, 4, NULL),
-      (5, 'B-24 Bicholim, Meera Road, Panaji Mumbai', '2021-06-26 00:00:00', '2021-06-29 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 11, 336, 5, 3),
-      (6, 'B-24 Bicholim, Meera Road, Panaji Mumbai', '2021-06-26 00:00:00', '2021-06-29 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 32000.0000000000, 11, 336, 6, 4),
-      (7, 'B-24 Bicholim, Meera Road, Panaji Mumbai', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 32000.0000000000, 11, 336, 7, NULL),
-      (8, 'B-24 Bicholim, Meera Road, Panaji Mumbai', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 11, 336, 8, NULL),
-      (9, '924 Mall Road, Kovvur', '2021-06-25 00:00:00', '2021-06-29 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 11, 738, 9, 5),
-      (10, '924 Mall Road, Kovvur', '2021-06-23 00:00:00', '2021-06-28 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 11, 738, 10, 6),
-      (11, '924 Mall Road, Kovvur', '2021-06-29 00:00:00', '2021-07-04 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 40000.0000000000, 11, 738, 11, 7),
-      (12, '924 Mall Road, Kovvur', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 32000.0000000000, 11, 738, 12, NULL),
-      (13, '824 Link Road, Lonavla', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 21, 539, 13, NULL),
-      (14, '824 Link Road, Lonavla', '2021-06-29 00:00:00', '2021-07-02 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 21, 539, 14, 8),
-      (15, '824 Link Road, Lonavla', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 21, 539, 15, NULL),
-      (16, '824 Link Road, Lonavla', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 21, 539, 16, NULL),
-      (17, '824 Link Road, Lonavla', '2021-06-24 00:00:00', '2021-06-30 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 21, 539, 17, 9),
-      (18, '824 Link Road, Lonavla', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 21, 539, 18, NULL),
-      (19, '824 Link Road, Lonavla', '2021-07-02 00:00:00', '2021-07-05 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 50000.0000000000, 21, 539, 19, 10),
-      (20, '824 Link Road, Lonavla', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 39000.0000000000, 21, 539, 20, NULL),
-      (21, '824 Link Road, Lonavla', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 21, 539, 21, NULL),
-      (22, '824 Link Road, Lonavla', '2021-06-26 00:00:00', '2021-06-29 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 45000.0000000000, 21, 539, 22, 11),
-      (23, '824 Link Road, Lonavla', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 39000.0000000000, 21, 539, 23, NULL),
-      (24, '824 Link Road, Lonavla', '2021-07-01 00:00:00', '2021-07-04 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 45000.0000000000, 21, 539, 24, 12),
-      (25, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-07-06 00:00:00', '2021-07-09 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 45000.0000000000, 21, 1, 25, 13),
-      (26, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-06-28 00:00:00', '2021-06-30 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 21, 1, 26, 14),
-      (27, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 39000.0000000000, 21, 1, 27, NULL),
-      (28, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 21, 1, 28, NULL),
-      (29, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-06-26 00:00:00', '2021-06-27 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 39000.0000000000, 21, 1, 29, 15),
-      (30, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-06-26 00:00:00', '2021-06-29 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 21, 1, 30, 16),
-      (31, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 21, 1, 31, NULL),
-      (32, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-06-30 00:00:00', '2021-07-02 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 39000.0000000000, 21, 1, 32, 17),
-      (33, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 21, 1, 33, NULL),
-      (34, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 21, 1, 34, NULL),
-      (35, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-06-27 00:00:00', '2021-06-30 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 45000.0000000000, 21, 1, 35, 18),
-      (36, '724, Rampur, Manali', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 14, 1218, 36, NULL),
-      (37, '724, Rampur, Manali', '2021-06-29 00:00:00', '2021-07-04 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 14, 1218, 37, 19),
-      (38, '724, Rampur, Manali', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 40000.0000000000, 14, 1218, 38, NULL),
-      (39, '724, Rampur, Manali', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 40000.0000000000, 14, 1218, 39, NULL),
-      (40, '724, Rampur, Manali', '2021-07-04 00:00:00', '2021-07-06 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 14, 1218, 40, 20),
-      (41, '724, Rampur, Manali', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 40000.0000000000, 14, 1218, 41, NULL),
-      (42, '724, Rampur, Manali', '2021-07-04 00:00:00', '2021-07-05 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 14, 1218, 42, 21),
-      (43, '724, Rampur, Manali', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 14, 1218, 43, NULL),
-      (44, '724, Rampur, Manali', '2021-06-26 00:00:00', '2021-07-04 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 14, 1218, 44, 22),
-      (45, '724, Rampur, Manali', '2021-06-29 00:00:00', '2021-06-30 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 14, 1218, 45, 23),
-      (46, '724, Rampur, Manali', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 14, 1218, 46, NULL),
-      (47, '724, Rampur, Manali', '2021-06-30 00:00:00', '2021-07-02 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 14, 1218, 47, 24),
-      (48, '724, Rampur, Manali', '2021-06-26 00:00:00', '2021-06-27 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 14, 1218, 48, 25),
-      (49, '724, Rampur, Manali', NULL, NULL, '2021-06-23 00:00:00', '2021-06-23 00:00:00', 34000.0000000000, 14, 1218, 49, NULL),
-      (50, '724, Rampur, Manali', '2021-06-29 00:00:00', '2021-07-02 00:00:00', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 36000.0000000000, 14, 1218, 50, 26);`
+      (1, 'B-24 Bicholim, Meera Road, Panaji', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 11, 336, 1),
+      (2, 'B-24 Bicholim, Meera Road, Panaji', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 11, 336, 2),
+      (3, 'B-24 Bicholim, Meera Road, Panaji', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 11, 336, 3),
+      (4, 'B-24 Bicholim, Meera Road, Panaji', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 40000.0000000000, 11, 336, 4),
+      (5, 'B-24 Bicholim, Meera Road, Panaji', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 11, 336, 5),
+      (6, 'B-24 Bicholim, Meera Road, Panaji', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 32000.0000000000, 11, 336, 6),
+      (7, 'B-24 Bicholim, Meera Road, Panaji', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 32000.0000000000, 11, 336, 7),
+      (8, 'B-24 Bicholim, Meera Road, Panaji', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 11, 336, 8),
+      (9, '924 Mall Road, Kovvur',  '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 11, 738, 9),
+      (10, '924 Mall Road, Kovvur',  '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 11, 738, 10),
+      (11, '924 Mall Road, Kovvur',  '2021-06-23 00:00:00', '2021-06-23 00:00:00', 40000.0000000000, 11, 738, 11),
+      (12, '924 Mall Road, Kovvur',  '2021-06-23 00:00:00', '2021-06-23 00:00:00', 32000.0000000000, 11, 738, 12),
+      (13, '824 Link Road, Lonavla', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 21, 539, 13),
+      (14, '824 Link Road, Lonavla', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 21, 539, 14),
+      (15, '824 Link Road, Lonavla', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 21, 539, 15),
+      (16, '824 Link Road, Lonavla', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 21, 539, 16),
+      (17, '824 Link Road, Lonavla', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 21, 539, 17),
+      (18, '824 Link Road, Lonavla', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 21, 539, 18),
+      (19, '824 Link Road, Lonavla', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 50000.0000000000, 21, 539, 19),
+      (20, '824 Link Road, Lonavla', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 39000.0000000000, 21, 539, 20),
+      (21, '824 Link Road, Lonavla', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 21, 539, 21),
+      (22, '824 Link Road, Lonavla', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 45000.0000000000, 21, 539, 22),
+      (23, '824 Link Road, Lonavla', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 39000.0000000000, 21, 539, 23),
+      (24, '824 Link Road, Lonavla', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 45000.0000000000, 21, 539, 24),
+      (25, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai',  '2021-06-23 00:00:00', '2021-06-23 00:00:00', 45000.0000000000, 21, 1, 25),
+      (26, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai',  '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 21, 1, 26),
+      (27, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 39000.0000000000, 21, 1, 27),
+      (28, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 21, 1, 28),
+      (29, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 39000.0000000000, 21, 1, 29),
+      (30, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 21, 1, 30),
+      (31, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 21, 1, 31),
+      (32, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai',  '2021-06-23 00:00:00', '2021-06-23 00:00:00', 39000.0000000000, 21, 1, 32),
+      (33, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 35000.0000000000, 21, 1, 33),
+      (34, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 21, 1, 34),
+      (35, 'G-24 Borivali (W) – Link Rd, Yogi Nagar, MHB Colony, Vazira Naka, Gorai Rd, Mumbai', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 45000.0000000000, 21, 1, 35),
+      (36, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 14, 1218, 36),
+      (37, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 14, 1218, 37),
+      (38, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 40000.0000000000, 14, 1218, 38),
+      (39, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 40000.0000000000, 14, 1218, 39),
+      (40, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 14, 1218, 40),
+      (41, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 40000.0000000000, 14, 1218, 41),
+      (42, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 14, 1218, 42),
+      (43, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 14, 1218, 43),
+      (44, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 14, 1218, 44),
+      (45, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 14, 1218, 45),
+      (46, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 14, 1218, 46),
+      (47, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 38000.0000000000, 14, 1218, 47),
+      (48, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 30000.0000000000, 14, 1218, 48),
+      (49, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 34000.0000000000, 14, 1218, 49),
+      (50, '724, Rampur, Manali', '2021-06-23 00:00:00', '2021-06-23 00:00:00', 36000.0000000000, 14, 1218, 50);`;
     db.query(createDataSql, function (err) {
       if (err) {
         return reject(err);
       }
       console.log("Villa Details Data Synced successfully");
+      return resolve();
+    })
+  })
+}
+
+function createVillaBookingData() {
+  return new Promise((resolve, reject) => {
+    let createDataSql = `INSERT INTO lohono_stays.villa_booking_details (id, created_date, last_modified_date, check_in_date, check_out_date, fk_id_booked_by_user, fk_id_villa_details,is_active)
+    VALUES
+      (1, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-24 00:00:00', '2021-06-27 00:00:00', 2, 1,1),
+      (2, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-26 00:00:00', '2021-06-29 00:00:00', 3, 2,1),
+      (3, '2021-06-26 08:24:30', '2021-06-26 00:00:00', '2021-06-26 00:00:00', '2021-06-29 00:00:00', 4, 3,1),
+      (4, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-25 00:00:00', '2021-06-29 00:00:00', 5, 4,1),
+      (5, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-23 00:00:00', '2021-06-28 00:00:00', 6, 5,1),
+      (6, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-29 00:00:00', '2021-07-04 00:00:00', 7, 6,1),
+      (7, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-29 00:00:00', '2021-07-02 00:00:00', 8, 7,1),
+      (8, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-24 00:00:00', '2021-06-30 00:00:00', 9, 8,1),
+      (9, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-07-02 00:00:00', '2021-07-05 00:00:00', 10, 9,1),
+      (10, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-26 00:00:00', '2021-06-29 00:00:00', 11, 10,1),
+      (11, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-07-01 00:00:00', '2021-07-04 00:00:00', 12, 11,1),
+      (12, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-07-06 00:00:00', '2021-07-09 00:00:00', 13, 12,1),
+      (13, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-28 00:00:00', '2021-06-30 00:00:00', 14, 13,1),
+      (14, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-26 00:00:00', '2021-06-27 00:00:00', 15, 14,1),
+      (15, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-26 00:00:00', '2021-06-29 00:00:00', 16, 15,1),
+      (16, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-30 00:00:00', '2021-07-02 00:00:00', 17, 16,1),
+      (17, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-27 00:00:00', '2021-06-30 00:00:00', 18, 17,1),
+      (18, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-29 00:00:00', '2021-07-04 00:00:00', 19, 18,1),
+      (19, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-07-04 00:00:00', '2021-07-06 00:00:00', 20, 19,1),
+      (20, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-07-04 00:00:00', '2021-07-05 00:00:00', 21, 20,1),
+      (21, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-26 00:00:00', '2021-07-04 00:00:00', 22, 21,1),
+      (22, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-29 00:00:00', '2021-06-30 00:00:00', 23, 22,1),
+      (23, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-30 00:00:00', '2021-07-02 00:00:00', 24, 23,1),
+      (24, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-26 00:00:00', '2021-06-27 00:00:00', 25, 24,1),
+      (25, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-29 00:00:00', '2021-07-02 00:00:00', 26, 25,1),
+      (26, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-29 00:00:00', '2021-07-02 00:00:00', 26, 1,1),
+      (27, '2021-06-26 08:24:30', '2021-06-26 08:24:30', '2021-06-29 00:00:00', '2021-07-01 00:00:00', 10, 2,1);`;
+
+    db.query(createDataSql, function (err) {
+      if (err) {
+        return reject(err);
+      }
+      console.log("Villa Bookings Data Synced successfully");
       return resolve();
     })
   })
