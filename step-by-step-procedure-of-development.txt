@@ -14,3 +14,5 @@ POST method
 9.Added a redirection page to fetch the result of the enquiry api for the villa
 10.On clicking one villa url it redirects to final booking page
 11.Once a villa is booked we send a Success message onto a new screen
+12.I have applied validation of fromDate getter than toDate in backend
+13.Made a datepicker in frontend through bootstrap and integrated backend path from that redirection
