@@ -9,7 +9,7 @@
   <tr style="border:none;">
     <td style="margin: 0; padding: 0; height: 10px;" valign="top">
       <!-- table start -->
-      <table style="border-collapse:collapse; margin:0 auto; padding:0; width:100% !important; border:2px solid #f5f5f5; text-align:left; max-width: 600px;"
+      <table style="border-collapse:collapse; margin:0 auto; padding:0; width:100% !important; border:2px solid #f5f5f5; text-align:left; max-width: 1000px;"
         class="msotr" width="600" cellspacing="0" cellpadding="0" border="2" align="left">
 
         <tbody>
@@ -43,7 +43,7 @@
           <% data.forEach(function(result) {  %>
           <tr>
             <td width="140" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 10px;" valign="top">
-              <p style="margin:0; padding: 0; font-size: 12px; line-height: 15px; color: #1a1a1a; font-family:'verdana'; width: 120px; max-width: 120px; word-break: break-word;">
+              <p style="margin:0; padding: 0; font-size: 12px; line-height: 15px; color:crimson; font-family:'verdana'; width: 120px; max-width: 120px; word-break: break-word;">
                 <%= result.villaName %>
               </p>
             </td>
@@ -65,10 +65,16 @@
             </td>
             <td width="240" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 10px;" valign="top">
               <p style="margin:0; padding: 0; font-size: 12px; line-height: 15px; color: #1a1a1a; font-family:'verdana'; width: 220px; max-width: 220px; word-break: break-word;">
+                <% if(result.fk_id_booked_by_user ==null) { %>
                 <button onclick="location.href='/bookAVilla/<%= result.uniqueVillaId %>'" type="button">Click To Book
                   This
                   Awesome
                   Villa!</button>
+                <% }else { %>
+                This villa is already booked from
+                <%= result.check_in_date %> and
+                <%= result.check_out_date %> date
+                <% } %>
               </p>
             </td>
           </tr>
