@@ -73,7 +73,7 @@
             </td>
             <td width="140" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 10px;" valign="top">
               <p style="margin:0; padding: 0; font-size: 12px; line-height: 15px; color: #1a1a1a; font-family:'verdana'; width: 120px; max-width: 120px; word-break: break-word;">
-                <% if(result.fk_id_booked_by_user ==null) { %>
+                <% if(result.isAvailable == 1) { %>
                 Yes
                 <% }else { %>
                 No
@@ -82,15 +82,13 @@
             </td>
             <td width="240" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 10px;" valign="top">
               <p style="margin:0; padding: 0; font-size: 12px; line-height: 15px; color: #1a1a1a; font-family:'verdana'; width: 220px; max-width: 220px; word-break: break-word;">
-                <% if(result.fk_id_booked_by_user ==null) { %>
+                <% if(result.isAvailable == 1) { %>
                 <button onclick="location.href='/bookAVilla/<%= result.uniqueVillaId %>'" type="button">Click To Book
                   This
                   Awesome
                   Villa!</button>
                 <% }else { %>
-                This villa is already booked from
-                <%= result.check_in_date %> and
-                <%= result.check_out_date %> date
+                Sorry this villa is already booked for the requested dates
                 <% } %>
               </p>
             </td>

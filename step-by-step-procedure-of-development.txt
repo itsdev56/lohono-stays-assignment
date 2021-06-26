@@ -20,3 +20,4 @@ POST method
 enabling authentication page/login page and giving user login)
 15.Addresses of each city level has been taken same as this is a dummy data
 16.For now i am not taking number of guests into consideration. Can be taken up in modification
+17.It is assumed that a user can do multiple bookings based on availability for requested date
