@@ -1,0 +1,8 @@
+1. The authentication of user is not enabled as of now so i am assuming a user by my name to complete the booking flow.
+2. One User can place multiple bookings
+3. The Calendar doesnot allow backdated pages and also the last day for advance booking can be till 31 december only. For new year
+   calendar needs to be changed
+4. CheckOut of the hotel is not handled as of now. So there is no provision in the website for checking out of the hotel
+5. Addresses of each city level has been taken same as this is a dummy data
+6. At the end of the journey the user details of the booking is stored in the database
+7. For now i am not taking number of guests into consideration (maximum guests inputed with allowed number of guests). Can be taken up in modification

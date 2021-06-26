@@ -3,7 +3,7 @@ Steps Done:
 1.created a repository for the assignment and cloned the project from the github url with a readme.md
 2.git checkout -b lohono-stays-assignment done to branch out from the main branch to lohono-stays-assignment branch
 3.npm init
-4.npm i express,nodemon and all other necessary packages
+4.npm i express,nodemon and all other necessary packages example
 npm i express --save-exact
 npm i nodemon --save-exact
 5.create a file server.js in the root repository
@@ -21,3 +21,4 @@ enabling authentication page/login page and giving user login)
 15.Addresses of each city level has been taken same as this is a dummy data
 16.For now i am not taking number of guests into consideration. Can be taken up in modification
 17.It is assumed that a user can do multiple bookings based on availability for requested date
+18.Done with testing the flow
