@@ -3,11 +3,12 @@
 <head>
   <title>Isprava</title>
   <style>
-    table,
+    table
     th,
     td {
       border: 1px solid black;
       border-collapse: collapse;
+      text-align: center;
     }
 
     th,
@@ -15,19 +16,30 @@
       padding: 5px;
       text-align: center;
     }
+    .vertical-center {
+    text-align: center;
+    }
   </style>
+  <link href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 </head>
 
 <body>
-  <h1>
+  <h1 style="color:blue;">
     <center>Lohono Stays By Isprava</center>
   </h1>
   <br>
+  <h4>
+    <center>Please confirm your booking by clicking on confirmation button
+    </center>
+  </h4>
   <br>
   <br>
-  <h3>Please confirm the booking by clicking on submit</h3>
-  <h4>Booking Details</h4>
-  <table style="width:30%">
+  <h4>
+    <center>Booking Details</center>
+  </h4>
+  <br>
+  <table style="width:30%;margin: 0px auto;">
     <tr>
       <th width="180" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
         <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: black; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
@@ -37,6 +49,7 @@
       <td>
         <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: blue; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
           <strong>
+            &nbsp&nbsp&nbsp
             <%= data.villaName %></strong>
         </p>
       </td>
@@ -107,6 +120,33 @@
       </td>
     </tr>
     <tr>
+      <th width="200" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: black; text-align: center; width: 180px; max-width: 180px; word-break: break-word;">
+          DURATION OF DAYS
+        </p>
+      </th>
+      <td>
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: blue; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          <strong>
+            <%= data.duration %></strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <th width="200" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: black; text-align: center; width: 180px; max-width: 180px; word-break: break-word;">
+          ADDRESS
+        </p>
+      </th>
+      <td>
+        <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: blue; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
+          <strong>
+            &nbsp
+            <%= data.address %></strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
       <th width="180" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
         <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color: black; text-align: center; width: 160px; max-width: 160px; word-break: break-word;">
           TOTAL PRICE FOR THE STAY
@@ -121,8 +161,16 @@
     </tr>
   </table>
   <br>
+  <p style="margin: 0; padding: 0; font-size: 15px; line-height: 15px; color:red; text-align: center; width: 1600px; max-width: 1600px; word-break: break-word;">
+    *The Total Price For Stay Is Calculated as the sum of the price of individual nights for the stay +
+    18% GST
+  </p>
   <br>
-  <button onclick="location.href='/createBooking/<%= data.uniqueId %>'" type="button">Confirm Booking</button>
+  <br>
+  <div class="container">
+    <div class="vertical-center"><button onclick="location.href='/createBooking/<%= data.uniqueId %>'" type="button">Confirm
+        Booking</button></div>
+  </div>
 </body>
 
 </html>

@@ -2,6 +2,7 @@
 
 <head>
   <title>Isprava</title>
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -9,37 +10,44 @@
   <tr style="border:none;">
     <td style="margin: 0; padding: 0; height: 10px;" valign="top">
       <!-- table start -->
-      <table style="border-collapse:collapse; margin:0 auto; padding:0; width:100% !important; border:2px solid #f5f5f5; text-align:left; max-width: 1000px;"
-        class="msotr" width="600" cellspacing="0" cellpadding="0" border="2" align="left">
-
-        <tbody>
+      <table style="border-collapse:collapse; margin:0 auto; padding:0; width:100% !important; border:2px solid #f5f5f5; text-align:left; max-width: 1100px;"
+        class="table table-sortable" width="600" cellspacing="0" cellpadding="0" border="2" align="left" id="listingTable">
+        <thead>
           <tr>
             <th width="160" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
               <p style="margin: 0; padding: 0; font-size: 10px; line-height: 15px; color: black; font-family: 'verdana'; text-align: center; width: 120px; max-width: 120px; word-break: break-word;">
-                VILLA NAME
+                VILLA NAME <i class="fa fa-fw fa-sort"></i>
+              </p>
+
+            </th>
+            <th width="160" style="margin:0;  padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
+              <p style="margin: 0; padding:0; font-size: 10px; line-height: 15px; color: black; font-family: 'verdana'; text-align: center; width: 120px; max-width: 120px; word-break: break-word;">
+                PRICE PER NIGHT <i class="fa fa-fw fa-sort"></i>
               </p>
             </th>
             <th width="160" style="margin:0;  padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
               <p style="margin: 0; padding:0; font-size: 10px; line-height: 15px; color: black; font-family: 'verdana'; text-align: center; width: 120px; max-width: 120px; word-break: break-word;">
-                PRICE PER NIGHT
+                STATE <i class="fa fa-fw fa-sort"></i>
               </p>
             </th>
             <th width="160" style="margin:0;  padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
               <p style="margin: 0; padding:0; font-size: 10px; line-height: 15px; color: black; font-family: 'verdana'; text-align: center; width: 120px; max-width: 120px; word-break: break-word;">
-                STATE
+                CITY <i class="fa fa-fw fa-sort"></i>
               </p>
             </th>
             <th width="160" style="margin:0;  padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
               <p style="margin: 0; padding:0; font-size: 10px; line-height: 15px; color: black; font-family: 'verdana'; text-align: center; width: 120px; max-width: 120px; word-break: break-word;">
-                CITY
+                Availability <i class="fa fa-fw fa-sort"></i>
               </p>
             </th>
             <th width="260" style="margin:0;  padding: 9px 3px 9px 3px; height: 10px; line-height: 8px;" valign="top">
               <p style="margin: 0; padding:0; font-size: 10px; line-height: 15px; color: black; font-family: 'verdana'; text-align: center; width: 220px; max-width: 220px; word-break: break-word;">
-                Link To Book
+                Link To Book <i class="fa fa-fw fa-sort"></i>
               </p>
             </th>
           </tr>
+        </thead>
+        <tbody>
           <% data.forEach(function(result) {  %>
           <tr>
             <td width="140" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 10px;" valign="top">
@@ -63,6 +71,15 @@
                 <%= result.cityName %>
               </p>
             </td>
+            <td width="140" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 10px;" valign="top">
+              <p style="margin:0; padding: 0; font-size: 12px; line-height: 15px; color: #1a1a1a; font-family:'verdana'; width: 120px; max-width: 120px; word-break: break-word;">
+                <% if(result.fk_id_booked_by_user ==null) { %>
+                Yes
+                <% }else { %>
+                No
+                <% } %>
+              </p>
+            </td>
             <td width="240" style="margin: 0; padding: 9px 3px 9px 3px; height: 10px; line-height: 10px;" valign="top">
               <p style="margin:0; padding: 0; font-size: 12px; line-height: 15px; color: #1a1a1a; font-family:'verdana'; width: 220px; max-width: 220px; word-break: break-word;">
                 <% if(result.fk_id_booked_by_user ==null) { %>
@@ -84,6 +101,42 @@
       <!-- table end -->
     </td>
   </tr>
+  <script>
+    function sortTableByColumn(table, column, asc = true) {
+      const dirModifier = asc ? 1 : -1;
+      const tBody = table.tBodies[0];
+      const rows = Array.from(tBody.querySelectorAll("tr"));
+
+      // Sort each row
+      const sortedRows = rows.sort((a, b) => {
+        const aColText = a.querySelector(`td:nth-child(${column + 1})`).textContent.trim();
+        const bColText = b.querySelector(`td:nth-child(${column + 1})`).textContent.trim();
+
+        return aColText > bColText ? (1 * dirModifier) : (-1 * dirModifier);
+      });
+
+      while (tBody.firstChild) {
+        tBody.removeChild(tBody.firstChild);
+      }
+
+      tBody.append(...sortedRows);
+
+      table.querySelectorAll("th").forEach(th => th.classList.remove("th-sort-asc", "th-sort-desc"));
+      table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("th-sort-asc", asc);
+      table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("th-sort-desc", !asc);
+    }
+
+    document.querySelectorAll(".table-sortable th").forEach(headerCell => {
+      headerCell.addEventListener("click", () => {
+        const tableElement = headerCell.parentElement.parentElement.parentElement;
+        const headerIndex = Array.prototype.indexOf.call(headerCell.parentElement.children, headerCell);
+        const currentIsAscending = headerCell.classList.contains("th-sort-asc");
+
+        sortTableByColumn(tableElement, headerIndex, !currentIsAscending);
+      });
+    });
+
+  </script>
 </body>
 
 </html>
