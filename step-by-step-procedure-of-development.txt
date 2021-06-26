@@ -18,3 +18,5 @@ POST method
 13.Made a datepicker in frontend through bootstrap and integrated backend path from that redirection
 14. I am assuming there is only user by my name for which this booking is taking place (for now being i am 
 enabling authentication page/login page and giving user login)
+15.Addresses of each city level has been taken same as this is a dummy data
+16.For now i am not taking number of guests into consideration. Can be taken up in modification

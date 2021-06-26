@@ -64,6 +64,8 @@ app.get('/bookAVilla/:uniqueId', (req, res) => {
           result.checkInDate = checkInDate;
           result.checkedOutDate = checkedOutDate;
           result.uniqueId = req.params.uniqueId;
+          result.address = result.address;
+          result.duration = moment(checkedOutDate).diff(moment(checkInDate), 'days');
         });
         return resolve(res.render(__dirname + "/client/booking.html", { data: JSON.parse(JSON.stringify(data[0])) }));
       })
@@ -98,7 +100,7 @@ function fetchAllVillasForAGivenDateRange(startDate, endDate) {
     //          OR (check_in_date < (?) AND check_out_date >= (?) )
     //          OR ((?) <= check_in_date AND (?) >= check_out_date))`;
     let fetchingQuery = `SELECT vm.name as villaName,vd.average_price_per_night,s.name as stateName,c.name as cityName,vm.unique_id as uniqueVillaId,
-    vd.fk_id_booked_by_user,vd.check_in_date,vd.check_out_date from lohono_stays.villa_master vm
+    vd.fk_id_booked_by_user,vd.check_in_date,vd.check_out_date,vd.address from lohono_stays.villa_master vm
     inner join lohono_stays.villa_details vd on vd.fk_id_villa_master = vm.id 
     inner join lohono_stays.state s on s.id = vd.fk_id_state
     inner join lohono_stays.city c on c.id = vd.fk_id_city
@@ -115,7 +117,7 @@ function fetchAllVillasForAGivenDateRange(startDate, endDate) {
 function fetchUnavailableVillas() {
   return new Promise((resolve, reject) => {
     let fetchingQuery = `SELECT vm.name as villaName,vd.average_price_per_night,s.name as stateName,c.name as cityName,vm.unique_id as uniqueVillaId, 
-    vd.fk_id_booked_by_user,vd.check_in_date,vd.check_out_date from lohono_stays.villa_master vm
+    vd.fk_id_booked_by_user,vd.check_in_date,vd.check_out_date,vd.address from lohono_stays.villa_master vm
     inner join lohono_stays.villa_details vd on vd.fk_id_villa_master = vm.id 
     inner join lohono_stays.state s on s.id = vd.fk_id_state
     inner join lohono_stays.city c on c.id = vd.fk_id_city
@@ -131,7 +133,7 @@ function fetchUnavailableVillas() {
 
 function fetchVillaDetailsForUniqueId(uniqueId) {
   return new Promise((resolve, reject) => {
-    let fetchingQuery = `SELECT vm.name as villaName,vd.average_price_per_night,s.name as stateName,c.name as cityName from lohono_stays.villa_master vm
+    let fetchingQuery = `SELECT vm.name as villaName,vd.average_price_per_night,s.name as stateName,c.name as cityName,vd.address from lohono_stays.villa_master vm
     inner join lohono_stays.villa_details vd on vd.fk_id_villa_master = vm.id 
     inner join lohono_stays.state s on s.id = vd.fk_id_state
     inner join lohono_stays.city c on c.id = vd.fk_id_city
@@ -145,12 +147,12 @@ function fetchVillaDetailsForUniqueId(uniqueId) {
   })
 }
 
-function updateBookingRecord(uniqueId, checkInDate, checkOutDate) {
+function updateBookingRecord(uniqueId) {
   return new Promise((resolve, reject) => {
     let updateQuery = `Update lohono_stays.villa_details set check_in_date=(?),check_out_date=(?),fk_id_booked_by_user=(?)
     where fk_id_villa_master = (select id from lohono_stays.villa_master where unique_id=(?))`;
     //here i am passing 1 because its assumed the booking is done for first user this can be changed once authentication/login is enabled
-    db.query(updateQuery, [checkInDate, checkOutDate, uniqueId, 1], function (err, data) {
+    db.query(updateQuery, [checkInDate, checkedOutDate, 1, uniqueId], function (err, data) {
       if (err) {
         return reject(err);
       }
