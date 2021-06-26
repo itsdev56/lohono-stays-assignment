@@ -37,9 +37,18 @@ brew services start mysql@5.7
 mysql_secure_installation
 ```
 
+### Running Script for backend data of 50 Villas Seeding
+Go to datasource.js file in the code and change the user and password as configured (if password is 123 and user is admin then for the code to run it
+must be changed in datasource.js file for the code to run). For my system the username and password were root and root so had configured it as 
+that
+
+Once Changed run the script by typing the below command
+```
+node one-time/create-villas.js
+```
+
 ### Starting server on your machine
 You can access the application at `localhost:3000`
 
 - Starting Node server in the root directory
 ```nodemon .``` or `forever -w .`
-Now you can access the application at `localhost:3000`

@@ -46,11 +46,13 @@ must be changed in datasource.js file for the code to run). For my system the us
 that
 
 Once Changed run the script by typing the below command
+```
 node one-time/create-villas.js
-
+```
 
 ### Starting server on your machine
+Now you can access the application at `localhost:3000`
 
 - Starting Node server in the root directory
-`forever -w .` or ```nodemon .```
-Now you can access the application at `localhost:3000`
+```nodemon .``` or ```forever -w .``` 
+
