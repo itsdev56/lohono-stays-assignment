@@ -17,10 +17,10 @@ app.listen(3000, () => {
 });
 var checkInDate, checkedOutDate;
 
-app.post('/enquireAboutVillas', (req, res) => {
-  checkInDate = req.body.checkedInDate;
-  checkedOutDate = req.body.checkedOutDate;
-  if (checkInDate && checkedOutDate && checkDateFormat(checkInDate) && checkDateFormat(checkedOutDate)) {
+app.get('/enquireAboutVillas', (req, res) => {
+  checkInDate = req.query.checkInDate;
+  checkedOutDate = req.query.checkOutDate;
+  if (checkInDate && checkedOutDate && (checkInDate < checkedOutDate)) {
     return new Promise((resolve, reject) => {
       fetchAllVillasForAGivenDateRange(checkInDate, checkedOutDate)
         .then((data) => {
@@ -31,8 +31,8 @@ app.post('/enquireAboutVillas', (req, res) => {
         });
     })
   } else {
-    console.log('The Dates Selected Are Not In YYYY-MM-DD format');
-    alert("Either of checkin or checkout date is not in YYYY-MM-DD format. Automatically redirecting you to the home page Please enter correct date");
+    console.log('The Check In Date cannot be same or after Check Out Date');
+    alert("The Check In Date cannot be same or after Check Out Date. Automatically redirecting you to the home page Please enter correct date");
     res.redirect('http://localhost:3000');
   }
   res.end();
@@ -68,15 +68,6 @@ app.get('/createBooking/:uniqueId', (req, res) => {
       })
   })
 });
-
-function checkDateFormat(dateString) {
-  var regEx = /^\d{4}-\d{2}-\d{2}$/;
-  if (!dateString.match(regEx)) return false;  // Invalid format
-  var d = new Date(dateString);
-  var dNum = d.getTime();
-  if (!dNum && dNum !== 0) return false; // NaN value, Invalid date
-  return d.toISOString().slice(0, 10) === dateString;
-}
 
 function fetchAllVillasForAGivenDateRange(startDate, endDate) {
   return new Promise((resolve, reject) => {

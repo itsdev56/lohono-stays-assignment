@@ -1,28 +1,128 @@
+<!DOCTYPE html>
 <html>
 
 <head>
   <title>Isprava</title>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css">
+  <style type="text/css">
+    .container {
+      margin-top: 10px;
+    }
+
+    .btn-primary {
+      width: 100%;
+    }
+  </style>
+
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/2.14.1/moment.min.js"></script>
+  <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+
+  <script type="text/javascript">
+    var today = new Date();
+    var checkInDate = new Date();
+    let checkInDateOffset = checkInDate.getTimezoneOffset()
+    checkInDate = new Date(checkInDate.getTime() - (checkInDateOffset * 60 * 1000))
+    checkInDate = checkInDate.toISOString().split('T')[0];
+
+    var checkOutDate = new Date(today.setDate(today.getDate() + 1));
+    const checkOutDateOffset = checkOutDate.getTimezoneOffset()
+    checkOutDate = new Date(checkOutDate.getTime() - (checkOutDateOffset * 60 * 1000))
+    checkOutDate = checkOutDate.toISOString().split('T')[0];
+
+    $(document).ready(function () {
+      $('#checkInDate').datetimepicker({
+        format: 'YYYY-MM-DD', minDate: new Date(), maxDate: new Date(today.getFullYear(), 12, 01)
+      })
+      $("#checkInDate").on("dp.change", function (e) {
+        checkInDate = document.getElementById("inputCheckIn").value;
+      });
+    });
+    $(document).ready(function () {
+      $('#checkOutDate').datetimepicker({
+        format: 'YYYY-MM-DD', minDate: new Date(today.setDate(today.getDate())), maxDate: new Date(today.getFullYear(), 12, 01)
+      })
+      $("#checkOutDate").on("dp.change", function (e) {
+        checkOutDate = document.getElementById("inputCheckOut").value;
+      });
+    })
+  </script>
+
 </head>
 
 <body>
-  <h1>
+  <br><br>
+  <h1 style="color:blue;">
     <center>Welcome To Lohono Stays By Isprava</center>
   </h1>
   <br>
   <br>
-  <h2>We provide handpicked homes, intuitive hospitality, stellar service and modern amenities</h2>
+  <h3 style="color:red;">
+    <center>We provide handpicked homes, intuitive hospitality, stellar service and modern amenities</center>
+  </h3>
+  <br>
+  <div class="container">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <center>Please Enter The Dates For Which We Can Serve You</center>
+      </div>
+      <br>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="control-label">Check In Date</label>
+              <div class="input-group date" id="checkInDate">
+                <input type="text" class="form-control" id="inputCheckIn" />
+                <span class="input-group-addon">
+                  <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="control-label">Check Out Date</label>
+              <div class="input-group date" id="checkOutDate">
+                <input type="text" class="form-control" id="inputCheckOut" />
+                <span class="input-group-addon">
+                  <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br>
+        <button onclick="location.href=`/enquireAboutVillas?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}`"
+          type="button">Search For
+          Villas</button>
+      </div>
+    </div>
+  </div>
   <br>
   <br>
-  <h3>Please Enter The Date For Which We Can Serve You</h3>
-  <br>
-  <form action="/enquireAboutVillas" method="POST">
-    <input placeholder="Check in Date" name="checkedInDate" required>
-    <small>(in YYYY-MM-DD Format)</small>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-    <input placeholder="Check Out Date" name="checkedOutDate" required>
-    <small>(in YYYY-MM-DD Format)</small><br><br>
-    <button>Search For Villas</button>
-  </form>
-
+  <p>
+    <strong>&nbsp&nbsp&nbsp&nbspPolicies and Villa Rules</strong>
+    <ul>
+      <li>The CheckIn Time will be after 11 AM in the morning of the check in date selected. You can check in at any
+        time after 11 AM. Before 11AM checking depends
+        on the availability of the villa
+      </li>
+      <br>
+      <li>The CheckOut Time will be at max 10 AM in the morning of the check out date selected.</li>
+      <br>
+      <li>We are currently Open to advance booking but only till the end of this year. For new Year Bookings please try
+        in later part of the year</li>
+      <br>
+      <li>The Minimum time to book a villa is 1 night. We donot allow a villa to be booked for less than one day</li>
+      <br>
+      <li>The Villas are completely sanitized before your check in</li>
+      <br>
+      <li>Please bring in a valid Identity Proof at the time of check in</li>
+    </ul>
+  </p>
 </body>
 
 </html>
